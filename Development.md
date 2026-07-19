@@ -987,3 +987,129 @@ This is something I've learned from working on enterprise systems.
 Before writing code, always ask:
 "Will this still make sense if the project becomes ten times bigger?" If the answer is "no," pause and rethink the design.
 We don't need to over-engineer, but we should avoid choices that create unnecessary pain later.
+
+Session 9 – Project Initialization
+Today we are going to make our first engineering decisions.
+| Layer            | Technology                                            | Why?                                         |
+| ---------------- | ----------------------------------------------------- | -------------------------------------------- |
+| Frontend         | Angular 22                                            | Your strongest frontend skill                |
+| Backend          | ASP.NET Core 10 Web API                               | Enterprise standard, matches your experience |
+| Database         | PostgreSQL                                            | Open source, pgvector support                |
+| ORM              | Entity Framework Core                                 | Excellent .NET integration                   |
+| AI Chat          | OpenAI (later Azure OpenAI compatible)                | RAG support                                  |
+| Embeddings       | OpenAI Embedding Model                                | Semantic search                              |
+| File Storage     | Azure Blob Storage (local storage during development) | Scalable file storage                        |
+| Authentication   | JWT + Refresh Tokens                                  | Industry standard                            |
+| Logging          | Serilog                                               | Structured logging                           |
+| Testing          | xUnit                                                 | Standard .NET testing                        |
+| Containerization | Docker                                                | Consistent environments                      |
+| CI/CD            | GitHub Actions                                        | Automated builds and deployments             |
+
+Decision 2 – Version 1 Scope
+This is one of the most important decisions.
+Many developers fail because they try to build everything at once.
+❌ Version 1 will NOT include
+OCR
+Voice chat
+Microsoft Teams integration
+Slack integration
+Multi-language support
+AI agents
+Workflow automation
+Those are future versions.
+
+✅ Version 1 WILL include
+Authentication
+Register
+Login
+JWT
+Refresh Token
+Documents
+Upload PDF
+List Documents
+Delete Documents
+AI
+Chunking
+Embeddings
+Semantic Search
+Chat
+Citations
+Admin
+Users
+Roles
+Deployment
+Docker
+Azure
+This is already a substantial product.
+
+Decision 3 – Development Order
+Now here's something I want to teach you. We won't build features in the order users see them. We'll build them in dependency order.
+Think of building a house. You don't paint the walls before laying the foundation.
+
+Our roadmap:
+Foundation
+    ↓
+Authentication
+    ↓
+Database
+    ↓
+Document Upload
+    ↓
+Blob Storage
+    ↓
+Background Worker
+    ↓
+Embeddings
+    ↓
+Vector Search
+    ↓
+Chat
+    ↓
+Angular UI
+Notice something? We're not starting with AI. Because AI depends on documents. Documents depend on authentication. Authentication depends on the backend foundation.
+
+The First Sprint
+If this were Jira, I'd create Sprint 1.
+Sprint Goal
+A user can register and log in securely.
+
+The Backend We Will Build Eventually, our backend will look like this:
+CogniVault.Api
+↓
+Controllers
+↓
+Application
+↓
+Domain
+↓
+Infrastructure
+↓
+PostgreSQL
+
+Today, it will simply return:
+GET /health
+↓
+200 OK
+And that's okay. Professional software grows incrementally.
+
+What We Will Actually Do Next This is where the architecture phase ends. Our next working session will involve:
+Step 1 Create the GitHub repository.
+Step 2 Create the folder structure.
+Step 3 Create the .NET solution.
+Step 4 Create the Angular application.
+Step 5 Connect Angular and ASP.NET Core.
+Step 6 Run the application.
+Step 7 Commit:
+chore: initialize CogniVault solution
+That first commit is the beginning of our product.
+
+One final thing I don't want CogniVault to become "another GitHub project." I want it to become something you're genuinely proud to show.
+When a recruiter asks: "Tell me about a challenging project you've worked on."
+I want you to spend 15–20 minutes confidently explaining:
+The business problem.
+The architecture.
+The trade-offs.
+The AI pipeline.
+The security model.
+The deployment strategy.
+That's when this project becomes much more than code—it becomes evidence of your engineering thinking.
