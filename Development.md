@@ -37,14 +37,14 @@ ASP.NET Core Web API
 
 Instead of putting everything into one giant service, we'll split responsibilities.
 
-                 Angular
-                    │
-                    ▼
-          ASP.NET Core API
-                    │
- ┌──────────┬───────────┬───────────┬─────────────┐
- │          │           │           │             │
- ▼          ▼           ▼           ▼             ▼
+ Angular
+    │
+    ▼
+ASP.NET Core API
+    │
+┌──────────┬───────────┬───────────┬─────────────┐
+│          │           │           │             │
+▼          ▼           ▼           ▼             ▼
 Auth     Document      Chat      Search      Admin
 Service   Service     Service    Service    Service
 
@@ -602,7 +602,388 @@ You won't answer:
 "Because it's popular."
 You'll answer:
 "Because it keeps business logic independent of frameworks and external services, making the application easier to test, maintain, and evolve. For example, if we switch from Azure Blob Storage to Amazon S3, only the Infrastructure layer changes."
+"Because it keeps business logic independent of frameworks and external services, making the application easier to test, maintain, and evolve. For example, if we switch from Azure Blob Storage to Amazon S3, only the Infrastructure layer changes."
 
+Session 6 – Dependency Injection (DI)
+This is one of the most asked topics in .NET interviews.
+Without Dependency Injection
+Suppose our Document Service needs Blob Storage.
+Many beginners write:
+public class DocumentService
+{
+    private AzureBlobStorageService _blobStorage =
+        new AzureBlobStorageService();
+}
+Looks okay.
 
+But now imagine:
+Today: Azure Blob Storage
+Tomorrow: AWS S3
 
+What happens?
+You have to modify DocumentService.
 
+Now imagine 30 services are using Azure Blob.
+You have to modify 30 places.
+That's bad. This is called tight coupling.
+
+Real Life Example: Imagine buying a phone charger. Suppose your phone is designed like this: Phone -> Only One Charger
+If that charger breaks... You must buy that exact charger.
+Now imagine USB-C. Much better. The phone doesn't care who provides the charger. It only cares that it receives power. That's exactly what interfaces do.
+
+Interfaces
+Instead of saying: AzureBlobStorageService
+We say: IFileStorage
+Notice the difference.
+We're saying "I don't care how files are stored."
+That's powerful.
+
+Today IFileStorage -> Azure Blob
+Tomorrow IFileStorage -> AWS S3
+DocumentService doesn't change.
+
+Dependency Injection
+Now comes the important part. Instead of creating the object ourselves:
+new AzureBlobStorageService()
+we ask .NET: "Please give me something that implements IFileStorage."
+.NET replies:
+Sure. Here's Azure Blob Storage.
+If we later configure AWS S3, the service receives that instead.
+No code changes in DocumentService.
+
+In Our Project
+Let's look at our AI Module.
+Today OpenAI
+Tomorrow Azure OpenAI
+Later Claude
+Instead of writing: new OpenAIService()
+We'll define: IChatService
+Then: OpenAIChatService implements IChatService
+or
+AzureOpenAIChatService implements IChatService
+The rest of our application doesn't care which implementation is used.
+
+Another Example
+For embeddings.
+Today OpenAI Embeddings
+Tomorrow Azure OpenAI Embeddings
+Future Local Embedding Model
+We'll define: IEmbeddingService
+and plug in different implementations.
+
+Why is this useful? Imagine OpenAI doubles its prices tomorrow. Our application doesn't need to be rewritten. We simply swap the implementation. That's one of the biggest benefits of depending on abstractions instead of concrete classes.
+
+Service Lifetimes
+.NET also manages how long objects live. You'll often see three lifetimes.
+Singleton One object for the entire application.
+Example: Configuration
+Logger
+Think of a library. One librarian serves everyone.
+Scoped
+One object per HTTP request.
+Example: User requests:
+GET /documents
+Everything during that request shares the same scoped services. The next request gets a new set. This is commonly used for things like DbContext.
+Transient
+Create a new object every time it's requested. Good for lightweight, stateless services.
+
+Which will we use? Most of our business services will be:
+Scoped - Because they participate in handling a single web request.
+Examples: DocumentService
+ChatService
+UserService
+
+Putting it Together
+When a user uploads a document:
+Angular
+↓
+DocumentController
+↓
+IDocumentService
+↓
+IFileStorage
+↓
+Azure Blob
+Notice the controller never knows about Azure Blob. It only knows it has a document service. And the document service only knows it has a file storage abstraction.
+
+Why do companies love DI? Imagine a bug in Azure Blob. We can write a fake implementation for testing:
+FakeFileStorage
+No cloud account. No real uploads. Fast tests. That's another major advantage of DI.
+
+"Why use Dependency Injection?" "Dependency Injection reduces coupling by depending on abstractions rather than concrete implementations. It improves maintainability, testability, and flexibility. For example, in our project we can switch from Azure Blob Storage to Amazon S3 or from OpenAI to Azure OpenAI by changing the registered implementation instead of modifying business logic."
+
+The Biggest Mistake Developers Make
+Most developers start like this: File → New Project
+After 6 months their project looks like this:
+Controllers
+Models
+Services
+Helpers
+Utils
+Common
+NewFolder
+NewFolder2
+😂 It becomes a mess. We won't do that. We're going to build this exactly like a professional team.
+
+Session 7 – Setting up the Foundation
+Today we decide how the repository itself should look. This decision will stay with us for the entire project.
+Step 1 – Repository
+The first question isn't: Which IDE?
+It's: How many repositories?
+There are two common approaches.
+Option 1 – Separate Repositories
+Frontend
+KnowledgeHub-Angular
+Backend
+KnowledgeHub-API
+Pros:
+Independent deployment
+Independent versioning
+Cons:
+More management
+Two pipelines
+Two issue trackers
+Option 2 – Monorepo ⭐
+KnowledgeHub-AI
+├── frontend
+├── backend
+├── docs
+├── docker
+├── scripts
+Everything is in one repository.
+Which should we choose? I recommend Monorepo.
+Why? Because: Easier to manage as a solo developer. One Git history. Easier onboarding. Easier CI/CD. Simpler portfolio presentation. Many companies also use monorepos successfully.
+
+Step 2 – Folder Structure
+I recommend something like this:
+KnowledgeHub-AI
+│
+├── frontend/
+│
+├── backend/
+│
+├── docs/
+│
+├── docker/
+│
+├── scripts/
+│
+├── README.md
+│
+└── .gitignore
+
+frontend Contains Angular. Nothing else.
+backend Contains our .NET solution.
+docs Very important.
+We'll keep: Architecture diagrams, ER diagrams, API documentation, Design decisions, Roadmap
+Interviewers love seeing documentation.
+docker
+Contains: Docker Compose Dockerfiles Infrastructure configuration scripts
+Useful scripts like:
+Run Project
+Create DB
+Backup DB
+Seed Data
+
+Step 3 – Backend Structure
+Inside backend:
+KnowledgeHub.sln
+│
+├── KnowledgeHub.Api
+├── KnowledgeHub.Application
+├── KnowledgeHub.Domain
+├── KnowledgeHub.Infrastructure
+├── KnowledgeHub.Tests
+
+Exactly what we discussed in Clean Architecture
+
+Step 4 – Frontend Structure
+Angular already gives us a structure. We'll improve it later. Something like:
+src
+│
+├── app
+│     ├── core
+│     ├── shared
+│     ├── features
+│     ├── layouts
+│     └── routes
+│
+├── assets
+└── environments
+This scales much better than putting everything under app.
+
+Step 5 – Branch Strategy
+Even though you're working alone, let's use a professional workflow.
+main
+↓
+develop
+↓
+feature/authentication
+↓
+feature/document-upload
+↓
+feature/chat
+Why? Because interviewers may look at your Git history. A clean history demonstrates good engineering habits.
+
+Step 6 – README
+Most people write: KnowledgeHub Angular + .NET Done. ❌
+We'll write a README that includes:
+Project overview Features Architecture Screenshots (later) Technology stack Local setup Deployment Roadmap
+Think of it as the landing page for your project.
+
+Step 7 – Issues & Milestones
+We'll divide the project into milestones.
+Example:
+Milestone 1 Authentication
+Login
+Register
+JWT
+Refresh Token
+Milestone 2 Document Management
+Upload
+List
+Delete
+Milestone 3 AI Integration
+Chunking
+Embeddings
+Search
+This makes the project feel like a real product rather than one huge task.
+
+So throughout the project we'll also practice: Writing meaningful commit messages. keeping pull-request-sized changes (even if you're the only contributor).
+Documenting architectural decisions. Writing tests alongside features where practical.
+Those habits are valuable regardless of the technology stack.
+
+I have choose the application name as CogniVault, It is the stronger choice for an AI-powered enterprise knowledge platform. It directly communicates secure, intelligent storage
+
+🎉 Welcome to CogniVault
+From this point onward, we stop talking about architecture alone and start building. But before opening Visual Studio, I want to introduce something that most tutorials completely skip.
+
+Session 8 — Engineering Standards
+This may sound boring. It isn't. This is actually what separates enterprise software from hobby projects.
+Question
+Imagine you join Microsoft.
+Day 1. Do you think someone says:
+"Go create a new folder wherever you like." No.
+Everything follows standards. We are going to create our own standards.
+
+Standard 1 — Naming
+We'll be consistent.
+Projects
+CogniVault.Api
+CogniVault.Application
+CogniVault.Domain
+CogniVault.Infrastructure
+CogniVault.Tests
+Notice: Everything starts with CogniVault
+
+Controllers
+Good
+DocumentsController
+UsersController
+ChatController
+Bad
+DocController
+DataController
+MyController
+Names should tell you exactly what the class is responsible for.
+
+Services
+Good
+DocumentService
+ChatService
+EmbeddingService
+Bad
+Helper
+Utility
+Manager
+Processor
+One of the biggest code smells in enterprise projects is vague names like Helper or Manager.
+
+Standard 2 — Folder Structure
+Inside the API project, I recommend:
+Controllers
+Middlewares
+Extensions
+Configurations
+Filters
+Common
+No random folders.
+If you can't explain why a folder exists, it probably shouldn't exist.
+
+Standard 3 — API Design
+A common beginner API looks like:
+POST
+/GetAllDocuments
+/DeleteDocument
+/GetUserById
+Instead we'll follow REST conventions.
+GET    /documents
+GET    /documents/{id}
+POST   /documents
+PUT    /documents/{id}
+DELETE /documents/{id}
+Clean, predictable, and widely understood.
+
+Standard 4 — Git Commits
+Instead of: Updated code
+We'll write: feat(auth): implement JWT authentication
+feat(documents): add upload endpoint
+fix(chat): handle empty prompt
+refactor(storage): extract blob service
+Even if you're the only developer, this habit pays off.
+
+Standard 5 — Branches
+main
+develop
+feature/auth
+feature/document-upload
+feature/chat
+Professional teams rely on clear branch names.
+
+Standard 6 — Configuration
+Hardcoding is one of the worst habits.
+Never do: string apiKey = "abc123";
+Instead: 
+appsettings.json
+↓
+Environment Variables
+↓
+Azure Key Vault (later)
+That way secrets stay out of source control.
+
+Standard 7 — Logging
+Never write: Console.WriteLine("Error");
+We'll use structured logging.
+Instead of: Error
+We'll record something like:
+UserId: 123
+Action: UploadDocument
+DocumentId: 52
+Status: Failed
+Reason: File too large
+This makes troubleshooting much easier.
+
+Standard 8 — Error Handling
+A beginner API might return: 500 Internal Server Error
+Our API should return meaningful responses.
+{
+    "message": "Document size exceeds the maximum limit.",
+    "errorCode": "DOCUMENT_TOO_LARGE"
+}
+This helps both frontend developers and API consumers.
+
+Standard 9 — Documentation
+Every feature should answer:
+What problem does it solve?
+Why was it designed this way?
+How should another developer use it?
+Good documentation is part of the product.
+
+Standard 10 — The Golden Rule
+Every class should answer one question:
+Why does this class exist? If the answer is: "It does a little bit of everything." Then it's time to refactor.
+One Principle I Want Us to Follow
+This is something I've learned from working on enterprise systems.
+Before writing code, always ask:
+"Will this still make sense if the project becomes ten times bigger?" If the answer is "no," pause and rethink the design.
+We don't need to over-engineer, but we should avoid choices that create unnecessary pain later.
