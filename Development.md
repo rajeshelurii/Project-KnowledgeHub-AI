@@ -1114,5 +1114,122 @@ The security model.
 The deployment strategy.
 That's when this project becomes much more than code—it becomes evidence of your engineering thinking.
 
+CogniVault Development Environment Setup
 
+| Application / Tool     | Version                   | Installation / Verification                           |
+| ---------------------- | ------------------------- | ----------------------------------------------------- |
+| **Windows 11**         | Latest Updates            | Windows Update                                        |
+| **Visual Studio**      | **2026**                  | Install with **ASP.NET and Web Development** workload |
+| **.NET SDK**           | **10 LTS**                | `dotnet --version`                                    |
+| **Visual Studio Code** | Latest                    | Install from official website                         |
+| **Node.js**            | Latest **LTS**            | `node -v`                                             |
+| **npm**                | Comes with Node.js        | `npm -v`                                              |
+| **Angular CLI**        | **22**                    | `npm install -g @angular/cli`<br>`ng version`         |
+| **GitHub Desktop**     | Latest                    | Install and sign in to GitHub                         |
+| **Git**                | Latest                    | `git --version`                                       |
+| **Docker Desktop**     | Latest                    | Install from Docker Desktop                           |
+| **WSL**                | **WSL 2**                 | `wsl --install` *(Administrator PowerShell)*          |
+| **Ubuntu (WSL)**       | Latest LTS                | Installed automatically with `wsl --install`          |
+| **Docker Compose**     | Comes with Docker Desktop | `docker compose version`                              |
 
+VS Code Extensions
+Install these extensions:
+Extension	Required
+C# Dev Kit	✅
+Angular Language Service	✅
+Docker	✅
+ESLint	✅
+Prettier	Recommended
+GitLens	Recommended
+Error Lens	Recommended
+
+Folder Structure
+CogniVault/
+│
+├── backend/
+├── frontend/
+├── docker/
+├── docs/
+├── scripts/
+│
+├── README.md
+└── .gitignore
+
+Verification Commands
+.NET
+dotnet --version
+dotnet --list-sdks
+
+Node.js
+node -v
+
+npm
+npm -v
+
+Angular
+ng version
+
+Git
+git --version
+
+Docker
+docker --version
+docker info
+docker compose version
+
+WSL
+wsl --version
+wsl -l -v
+Expected:
+NAME              STATE      VERSION
+Ubuntu            Stopped    2
+docker-desktop    Running    2
+
+Development Workflow
+Backend
+cd backend
+dotnet watch
+Frontend
+cd frontend
+ng serve
+Docker
+docker compose up
+
+✅ CogniVault Milestone 1 Completed
+Development Environment
+| Component          | Status |
+| ------------------ | ------ |
+| Windows 11         | ✅      |
+| Visual Studio 2026 | ✅      |
+| .NET 10 LTS        | ✅      |
+| VS Code            | ✅      |
+| Node.js LTS        | ✅      |
+| npm                | ✅      |
+| Angular CLI 22     | ✅      |
+| GitHub Desktop     | ✅      |
+| Git                | ✅      |
+| Docker Desktop     | ✅      |
+| WSL 2              | ✅      |
+| Ubuntu             | ✅      |
+| Docker Compose     | ✅      |
+Status: 100% Complete
+
+[✓] Product Idea
+        ↓
+[✓] Architecture
+        ↓
+[✓] Technology Selection
+        ↓
+[✓] Development Environment
+        ↓
+[➡] Project Creation
+        ↓
+[ ] Authentication
+        ↓
+[ ] Database
+        ↓
+[ ] Document Upload
+        ↓
+[ ] AI Features
+        ↓
+[ ] Deployment
