@@ -1233,3 +1233,171 @@ Status: 100% Complete
 [ ] AI Features
         ↓
 [ ] Deployment
+
+Solution Structure
+CogniVault/
+│
+├── backend/
+│   ├── CogniVault.sln
+│   │
+│   ├── src/
+│   │   ├── CogniVault.Api
+│   │   ├── CogniVault.Application
+│   │   ├── CogniVault.Domain
+│   │   └── CogniVault.Infrastructure
+│   │
+│   └── tests/
+│       ├── CogniVault.UnitTests
+│       └── CogniVault.IntegrationTests
+│
+├── frontend/
+│   └── cognivault-web/
+│
+├── docker/
+│
+├── docs/
+│   ├── architecture/
+│   ├── decisions/
+│   ├── diagrams/
+│   ├── api/
+│   └── roadmap/
+│
+├── scripts/
+│
+├── README.md
+│
+└── .gitignore
+
+Why this Structure?
+backend
+Everything related to .NET.
+Nothing Angular-related should ever be inside this folder.
+src
+Contains only production code.
+Api
+Application
+Domain
+Infrastructure
+No tests.
+No scripts.
+No experiments.
+tests
+All test projects live here.
+UnitTests
+IntegrationTests
+This separation is common in enterprise applications and keeps production code isolated from test code.
+frontend
+We'll create:
+cognivault-web
+Why not just call it angular?
+Because one day we might have:
+cognivault-admin
+cognivault-mobile
+cognivault-public
+Using a descriptive application name scales better.
+docker
+Later this will contain:
+docker-compose.yml
+postgres
+redis
+and any custom Dockerfiles.
+docs
+Not just random documents.
+Real project documentation.
+Architecture
+API
+Decision Records
+Diagrams
+Roadmap
+scripts
+Automation scripts.
+For example:
+setup.ps1
+reset-db.ps1
+seed-data.ps1
+
+The Backend Projects
+CogniVault.Domain
+This is the heart of the application.
+Contains:
+Entities
+Value Objects
+Domain Rules
+Business Logic
+It knows nothing about:
+SQL
+ASP.NET
+OpenAI
+Docker
+
+CogniVault.Application
+Contains:
+Features
+Commands
+Queries
+Validators
+Interfaces
+This is where we'll use Vertical Slice Architecture.
+Example:
+Features
+Authentication
+Documents
+Chat
+
+CogniVault.Infrastructure
+Contains implementations.
+Examples:
+PostgreSQL
+OpenAI
+Blob Storage
+Logging
+Email
+If we replace PostgreSQL with another database, most of the application remains unchanged.
+
+CogniVault.Api
+The entry point.
+Responsible for:
+Controllers
+Authentication
+Middleware
+Swagger
+Dependency Injection
+Hosting
+
+Before we move to Session 11, please run these 5 commands and send me the output:
+1. .NET
+dotnet --version
+dotnet --list-sdks
+2. Node
+node -v
+3. npm
+npm -v
+4. Angular
+ng version
+5. Docker
+docker --version
+docker compose version
+6. GitHub Desctop or Cmd
+git --version
+
+Creating .Net Project
+1). Using GUI
+File
+   ↓
+New
+   ↓
+Projet
+Blank Solution
+We are doing this because we need our oun clear architecture where as selecting a pre set templates would create the default structure which we dont want.
+
+2). From Commands
+open powershell or cmd
+open backend folder use cd
+execute dotnet new sln -n CogniVault
+dotnet Invokes the .NET CLI.
+new Tells .NET to create something from a template.
+sln Means: Create a Solution. A solution is not a project. Think of it as a workspace that groups multiple projects together.
+-n Means: Name
+CogniVault Creates: CogniVault.slnx (Microsoft introduced the Solution File (.slnx) format. The difference is that .slnx is a modernized format that's easier to maintain and is designed to evolve better than the legacy .sln format.)
+You can verify by executing dir - which will show the created CogniVault.slnx file name available with in backend
+
